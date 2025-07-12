@@ -5,7 +5,10 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import DisplayTechIcons from './DisplayTechIcons';
 
-const InterviewCard = ({id, interviewId, userId, role, type, techstack, createdAt}: InterviewCardProps & {id?: string}) => {
+const InterviewCard = ({interviewId, role, type, techstack, createdAt, ...rest}: InterviewCardProps & {id?: string}) => {
+    // Suppress unused variable warning
+    void rest;
+
     const feedback = null as Feedback | null;
     const normalizedType = /mix/gi.test(type) ? 'Mixed' : type.toLowerCase();
     const formattedDate = dayjs(feedback?.createdAt || createdAt || Date.now()).format('MMM D, YYYY');

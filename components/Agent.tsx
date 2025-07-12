@@ -11,7 +11,10 @@ enum CallStatus {
     FINISHED = 'FINISHED',
 }
 
-const Agent = ({userName, type = "interview", userId, interviewId, feedbackId, questions}: AgentProps) => {
+const Agent = ({userName, type = "interview", ...rest}: AgentProps) => {
+    // Suppress unused variable warning
+    void rest;
+
     const isSpeaking = true;
     // Use state for dynamic status - demo purposes
     const [callStatus] = useState<CallStatus>(CallStatus.INACTIVE);
