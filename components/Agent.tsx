@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { vapi } from '@/lib/vapi.sdk';
 import { interviewer } from '@/constants';
+// Note: createFeedback is imported dynamically to avoid server-side imports in client component
 
 // VAPI Message type definition
 interface Message {
@@ -125,15 +126,24 @@ The issue is with connecting to VAPI's voice servers, not your code.`);
 
     const handleGenerateFeedback = async (messages: SavedMessage[]) => {
         console.log("Generate FeedBack here.");
-        //TODO:Create a server action
-        const { success, id } = {
-            success: true,
-            id: 'feedback_id'
-        };
-        if (success && id) {
-            router.push(`/interview/${interviewId}/feedback/${id}`);
-        } else {
-            console.log("Error saving feedback.");
+        try {
+            // Dynamic import to avoid server-side imports in client component
+            const { createFeedback } = await import('@/lib/actions/general.action');
+
+            const { success, feedbackId: id } = await createFeedback({
+                interviewId: interviewId!,
+                userId: userId!,
+                transcript: messages,
+            });
+
+            if (success && id) {
+                router.push(`/interview/${interviewId}/feedback/${id}`);
+            } else {
+                console.log("Error saving feedback.");
+                router.push("/");
+            }
+        } catch (error) {
+            console.error("Error creating feedback:", error);
             router.push("/");
         }
     };
