@@ -9,9 +9,20 @@ export async function GET(){
 }
 
 export async function POST(request: Request){
-    const { type,role,level,techstack,amount,userid} = await request.json();
-
     try {
+        const body = await request.json();
+        console.log('Received VAPI request:', body);
+
+        const { type, role, level, techstack, amount, userid } = body;
+
+        // Validate required parameters
+        if (!type || !role || !level || !techstack || !amount || !userid) {
+            return Response.json({
+                success: false,
+                error: 'Missing required parameters',
+                required: ['type', 'role', 'level', 'techstack', 'amount', 'userid']
+            }, { status: 400 });
+        }
     const {text:questions} = await generateText({
 
         model : google('gemini-2.0-flash-001'),
@@ -45,19 +56,19 @@ export async function POST(request: Request){
     createdAt: new Date().toISOString(),
    }
 
-   await db.collection('interviews').add(interview);
+        const docRef = await db.collection('interviews').add(interview);
 
-   return Response.json({success: "true"}, {status: 200});
-   
-   
-   
+        return Response.json({
+            success: true,
+            message: `Interview generated successfully with ${interview.questions.length} questions`,
+            interviewId: docRef.id
+        }, { status: 200 });
+
+    } catch (error) {
+        console.error('Error in VAPI generate endpoint:', error);
+        return Response.json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
-    
-    catch (error) {
-        console.log(error);
-        return Response.json({success: "false", error}, {status: 500});
-        
-    }
-
-
 }
