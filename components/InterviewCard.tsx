@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import Link from 'next/link';
 import DisplayTechIcons from './DisplayTechIcons';
 
-const InterviewCard = ({interviewId, role, type, techstack, createdAt, ...rest}: InterviewCardProps & {id?: string}) => {
+const InterviewCard = ({id, role, type, techstack, createdAt, ...rest}: InterviewCardProps & {id?: string}) => {
     // Suppress unused variable warning
     void rest;
 
@@ -40,14 +40,18 @@ const InterviewCard = ({interviewId, role, type, techstack, createdAt, ...rest}:
                     </p>
 
                 </div>
+
                 <div className='flex flex-row justify-between '>
                     <DisplayTechIcons techStack={techstack}/>
+
                     <Button className="btn-primary">
-                        <Link href={feedback?`/interview/${interviewId}/feedback` : `/interview/${interviewId}`}>
-              {feedback ? 'View Feedback' : 'Take Interview'}
+                        <Link href={feedback?`/interview/${id}/feedback` : `/interview/${id}`}>
+              {feedback ? 'View Feedback' : 'View Interview'}
                          </Link>
                     </Button>
+
                 </div>
+
             </div>
         </div>
     )

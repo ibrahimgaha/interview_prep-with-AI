@@ -5,6 +5,15 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { vapi } from '@/lib/vapi.sdk';
+import { interviewer } from '@/constants';
+
+// VAPI Message type definition
+interface Message {
+    type: string;
+    transcriptType?: string;
+    role: "user" | "system" | "assistant";
+    transcript: string;
+}
 
 enum CallStatus {
     INACTIVE = 'INACTIVE',
@@ -18,7 +27,7 @@ interface SavedMessage {
     content: string;
 }
 
-const Agent = ({ userName, userId, type }: AgentProps) => {
+const Agent = ({ userName, userId, type, interviewId, questions }: AgentProps) => {
     const router = useRouter();
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [callStatus, setCallStatus] = useState(CallStatus.INACTIVE);
@@ -114,11 +123,30 @@ The issue is with connecting to VAPI's voice servers, not your code.`);
         };
     }, []);
 
+    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+        console.log("Generate FeedBack here.");
+        //TODO:Create a server action
+        const { success, id } = {
+            success: true,
+            id: 'feedback_id'
+        };
+        if (success && id) {
+            router.push(`/interview/${interviewId}/feedback/${id}`);
+        } else {
+            console.log("Error saving feedback.");
+            router.push("/");
+        }
+    };
+
     useEffect(() => {
         if (callStatus === CallStatus.FINISHED) {
-            router.push('/');
+            if (type === "generate") {
+                router.push('/');
+            } else {
+                handleGenerateFeedback(messages);
+            }
         }
-    }, [messages, callStatus, type, userId, router]);
+    }, [messages, callStatus, type, userId, router, interviewId]);
 
     const handleCall = async () => {
         try {
@@ -292,15 +320,24 @@ The issue is with connecting to VAPI's voice servers, not your code.`);
                         console.log('Starting VAPI assistant with configuration:', {
                             assistantId,
                             userName,
-                            userId
+                            userId,
+                            questionsCount: questions?.length || 0
                         });
 
                         // Use the correct VAPI start method signature for assistants
                         console.log('Attempting assistant start...');
-                        await vapi.start(assistantId, {
+
+                        // Format questions for the assistant
+                        let formattedQuestions = "";
+                        if (questions) {
+                            formattedQuestions = questions.map(question => `- ${question}`).join('\n');
+                        }
+
+                        await vapi.start(interviewer, {
                             variableValues: {
                                 username: userName,
                                 userid: userId,
+                                questions: formattedQuestions,
                             },
                         });
                     } catch (err: unknown) {
