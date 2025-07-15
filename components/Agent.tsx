@@ -195,6 +195,13 @@ The issue is with connecting to VAPI's voice servers, not your code.`);
             const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
             const webToken = process.env.NEXT_PUBLIC_VAPI_WEB_TOKEN;
 
+            console.log('🔍 Environment Variables Debug:', {
+                workflowId: workflowId || 'MISSING',
+                assistantId: assistantId || 'MISSING',
+                webToken: webToken ? 'Set' : 'MISSING',
+                allEnvVars: Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_VAPI'))
+            });
+
             console.log('VAPI Configuration:', {
                 workflowId: workflowId ? 'Set' : 'Missing',
                 assistantId: assistantId ? 'Set' : 'Missing',
